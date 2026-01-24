@@ -1,3 +1,32 @@
+extern setKeyINT
+extern keyINT
+extern unsetKeyINT
+extern p_i
+extern p_t
+extern tecla
+extern tecla_u
+extern teclasc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+extern setClockINT
+extern unsetClockINT
+extern ClockINT
+extern pauseClock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+extern line
+extern full_circle
+extern plot_xy
+extern modo_anterior
+extern cor
+extern vermelho
+extern preto
+extern cyan
+extern amarelo
+extern branco_intenso
+extern preto
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+global atualizaPos
+
 segment code
 ..start:
 ;Inicializa registradores
@@ -7,6 +36,8 @@ segment code
     MOV 	SS,AX
     MOV 	SP,stacktop
 
+   call setKeyINT
+
 ;Salvar modo corrente de video(vendo como está o modo de video da maquina)
     MOV  	AH,0Fh
     INT  	10h
@@ -14,163 +45,304 @@ segment code
 
 
 ;Configurar interrupção de teclado
-    CLI						            ; Deshabilita INTerrupções por hardware - pin INTR NÃO atende INTerrupções externas	
-    XOR     AX, AX					    ; Limpa o registrador AX, é equivalente a fazer "MOV AX,0"
-    MOV     ES, AX					    ; Inicializa o registrador de Segmento Extra ES para acessar à região de vetores de INTerrupção (posição zero de memoria)
-    MOV     AX, [ES:INT9*4]			    ; Carrega em AX o valor do IP do vector de INTerrupção 9 
-    MOV     [offset_dos_tec], AX    	    ; Salva na variável offset_dos o valor do IP do vector de INTerrupção 9
-    MOV     AX, [ES:INT9*4+2]   	    ; Carrega em AX o valor do CS do vector de INTerrupção 9
-    MOV     [cs_dos_tec], AX			    ; Salva na variável cs_dos o valor do CS do vector de INTerrupção 9     
-    MOV     [ES:INT9*4+2], CS		    ; Atualiza o valor do CS do vector de INTerrupção 9 com o CS do programa atual 
-    MOV     WORD [ES:INT9*4],keyINT	    ; Atualiza o valor do IP do vector de INTerrupção 9 com o offset "keyINT" do programa atual
-    STI
 ;Configurar interrupção de clock
-    CLI									; Deshabilita INTerrupções por harDWare - pin INTR NÃO atende INTerrupções externas
-    XOR 	AX, AX						; Limpa o registrador AX, é equivALente a fazer "MOV AX,0"
-    MOV 	ES, AX						; Inicializa o registrador de Segmento Extra ES para acessar à região de vetores de INTerrupção (posição zero de memoria)
-    MOV     AX, [ES:INTr*4]				; Carrega em AX o vALor do IP do vector de INTerrupção 8
-    MOV     [offset_dos_clock], AX    		; Salva na variável offset_dos o vALor do IP do vector de INTerrupção 8
-    MOV     AX, [ES:INTr*4+2]   		; Carrega em AX o vALor do CS do vector de INTerrupção 8
-    MOV     [cs_dos_clock], AX  				; Salva na variável cs_dos o vALor do CS do vector de INTerrupção 8   
-    MOV     [ES:INTr*4+2], CS			; Atualiza o valor do CS do vector de INTerrupção 8 com o CS do programa atuAL
-    MOV     WORD [ES:INTr*4],ClockINT	; Atualiza o valor do IP do vector de INTerrupção 8 com o offset "ClockINT" do programa atuAL
-    STI									; Habilita INTerrupções por harDWare - pin INTR SIM atende INTerrupções externas
+    ; CLI									; Deshabilita INTerrupções por harDWare - pin INTR NÃO atende INTerrupções externas
+    ; XOR 	AX, AX						; Limpa o registrador AX, é equivALente a fazer "MOV AX,0"
+    ; MOV 	ES, AX						; Inicializa o registrador de Segmento Extra ES para acessar à região de vetores de INTerrupção (posição zero de memoria)
+    ; MOV     AX, [ES:INTr*4]				; Carrega em AX o vALor do IP do vector de INTerrupção 8
+    ; MOV     [offset_dos_clock], AX    		; Salva na variável offset_dos o vALor do IP do vector de INTerrupção 8
+    ; MOV     AX, [ES:INTr*4+2]   		; Carrega em AX o vALor do CS do vector de INTerrupção 8
+    ; MOV     [cs_dos_clock], AX  				; Salva na variável cs_dos o vALor do CS do vector de INTerrupção 8   
+    ; MOV     [ES:INTr*4+2], CS			; Atualiza o valor do CS do vector de INTerrupção 8 com o CS do programa atuAL
+    ; MOV     WORD [ES:INTr*4],ClockINT	; Atualiza o valor do IP do vector de INTerrupção 8 com o offset "ClockINT" do programa atuAL
+    ; STI									; Habilita INTerrupções por harDWare - pin INTR SIM atende INTerrupções externas
 
 	;Alterar modo de video para gráfico 640x480 16 cores
     MOV     	AL,12h
     MOV     	AH,0
     INT     	10h
 
-
-    MOV		byte[cor],vermelho	;antenas
-		MOV		AX,0
-		PUSH	AX
-		MOV		AX,0
-		PUSH	AX
-		MOV		AX,639
-		PUSH	AX
-		MOV		AX,0
-		PUSH	AX
-		CALL	line
-		
-		MOV		byte[cor],vermelho	;antenas
-		MOV		AX,0
-		PUSH	AX
-		MOV		AX,0
-		PUSH	AX
-		MOV		AX,0
-		PUSH	AX
-		MOV		AX,479
-		PUSH	AX
-		CALL	line
-
-        MOV		byte[cor],vermelho	;antenas
-		MOV		AX,639
-		PUSH	AX
-		MOV		AX,479
-		PUSH	AX
-		MOV		AX,0
-		PUSH	AX
-		MOV		AX,479
-		PUSH	AX
-		CALL	line
-
-        MOV		byte[cor],vermelho	;antenas
-		MOV		AX,639
-		PUSH	AX
-		MOV		AX,479
-		PUSH	AX
-		MOV		AX,639
-		PUSH	AX
-		MOV		AX,0
-		PUSH	AX
-		CALL	line
-
-    ; MOV		byte[cor],vermelho	;antenas
-	; MOV		AX,0
-	; PUSH	AX
-	; MOV		AX,0
-	; PUSH	AX
-	; MOV		AX,0
-	; PUSH	AX
-	; MOV		AX,639
-	; PUSH	AX
-	; CALL	line
-    
-    ; MOV		byte[cor],vermelho	;antenas
-	; MOV		AX,0
-	; PUSH	AX
-	; MOV		AX,0
-	; PUSH	AX
-	; MOV		AX,479
-	; PUSH	AX
-	; MOV		AX,0
-	; PUSH	AX
-	; CALL	line
-    ; MOV		byte[cor],vermelho	;antenas
-	; MOV		AX,479
-	; PUSH	AX
-	; MOV		AX,639
-	; PUSH	AX
-	; MOV		AX,0
-	; PUSH	AX
-	; MOV		AX,639
-	; PUSH	AX
-	; CALL	line
-    ; MOV		byte[cor],vermelho	;antenas
-	; MOV		AX,479
-	; PUSH	AX
-	; MOV		AX,639
-	; PUSH	AX
-	; MOV		AX,479
-	; PUSH	AX
-	; MOV		AX,0
-	; PUSH	AX
-	; CALL	line
-;Loop bizarramente infinito
-mov cx, 240
-infinity:
+	mov bx, branco_intenso
+    MOV		byte[cor],bl	;antenas
+	MOV		AX,0
+	PUSH	AX
+	MOV		AX,0
+	PUSH	AX
+	MOV		AX,639
+	PUSH	AX
+	MOV		AX,0
+	PUSH	AX
+	CALL	line
 	
-	MOV		byte[cor],vermelho	;antenas
-    MOV		AX,cx
-    PUSH	AX
-    MOV		AX,240
-    PUSH	AX
-    CALL	plot_xy
+	MOV		byte[cor],bl	;antenas
+	MOV		AX,0
+	PUSH	AX
+	MOV		AX,0
+	PUSH	AX
+	MOV		AX,0
+	PUSH	AX
+	MOV		AX,479
+	PUSH	AX
+	CALL	line
+
+
+	MOV		byte[cor],bl	;antenas
+	MOV		AX,639
+	PUSH	AX
+	MOV		AX,479
+	PUSH	AX
+	MOV		AX,0
+	PUSH	AX
+	MOV		AX,479
+	PUSH	AX
+	CALL	line
+
+
+	MOV		byte[cor],bl	;antenas
+	MOV		AX,639
+	PUSH	AX
+	MOV		AX,479
+	PUSH	AX
+	MOV		AX,639
+	PUSH	AX
+	MOV		AX,0
+	PUSH	AX
+	CALL	line
+
+	push cx
+	push ax
+	push si
+
+	mov ax, vermelho
+	mov byte[cor],al
+	mov cx, [num_frutas]
+	imprime_frutas1:
+	
+		mov si, cx
+		shl si, 1
+		mov ax, [fruitX1 + si]
+		push ax
+		mov ax, [fruitY1 + si]
+		push ax
+		mov		AX, 3
+		PUSH 	AX
+    	CALL	full_circle
+
+		loop imprime_frutas1
+
+	mov ax, cyan
+	mov byte[cor],al
+	mov cx, [num_frutas]
+	imprime_frutas2:
+	
+		mov si, cx
+		shl si, 1
+		mov ax, [fruitX2 + si]
+		push ax
+		mov ax, [fruitY2 + si]
+		push ax
+		mov		AX, 3
+		PUSH 	AX
+    	CALL	full_circle
+
+		loop imprime_frutas2
+
+	pop si
+	pop ax
+	pop cx
+
+	call setClockINT
+;Loop bizarramente infinito
+direcao:
 
     MOV     AX,[p_i]
 	CMP     AX,[p_t]
-	JE      infinity
+	JE      direcao
 	INC     word[p_t]
 	AND     word[p_t],7   ; TALVEZ REMOVER
 	MOV     BX,[p_t]
 	XOR     AX, AX
     MOV byte AL, [BX+tecla]
 	MOV     [tecla_u],AL
+	
+	CMP AL,0x11
+	JNE naoW
+	JMP set_W
+	naoW:
 
-	CMP AL, 10h
-    JNE infinity
+	CMP AL,0x1E
+	JNE naoA
+	JMP set_A
+	naoA:
+	
+	CMP AL,0x1F
+	JNE naoS
+	JMP set_S
+	naoS:
+	
+	CMP AL,0x20
+	JNE naoD
+	JMP set_D
+	naoD:
+
+	CMP AL,0x48
+	JNE naoUP
+	JMP set_arrowUP
+	naoUP:
+
+	CMP AL,0x4B
+	JNE naoLEFT
+	JMP set_arrowLEFT
+	naoLEFT:
+
+	CMP AL,0x50
+	JNE naoDOWN
+	JMP set_arrowDOWN
+	naoDOWN:
+
+	CMP AL,0x4D
+	JNE naoRIGHT
+	JMP set_arrowRIGHT
+	naoRIGHT:
+
+	CMP AL,0x19
+	JNE naoPAUSE
+		call pauseClock
+	naoPAUSE:
+
+	CMP AL,0x10
+	JNE naoSAI
     JMP sai
+	naoSAI:
+
+	jmp direcao
+;  ^ E0
+;  | 48
+
+; <--E0
+;    4B
+
+; | E0
+; V 50
+
+; --> E0
+;     4D
+; fim_direcao:
+	; mov bx, vermelho
+	; MOV		byte[cor],bl	;antenas
+	; pull bx
+	; mov al, x1
+
+    ; MOV		AX,
+    ; PUSH	AX
+    ; MOV		AX,240
+    ; PUSH	AX
+    ; CALL	plot_xy
+set_W:
+	push ax
+	cmp word[dy1], 0
+	jl blockW
+	mov ax, step
+	MOV word[dx1], 0
+	MOV word[dy1], ax
+	blockW:
+	pop ax
+	JMP direcao
+
+set_A:
+	push ax
+	cmp word[dx1], 0
+	jg blockA
+	mov ax, 0
+	sub ax, step
+	MOV word[dx1], ax
+	MOV word[dy1], 0
+	blockA:
+	JMP direcao
+	pop ax
+
+set_S:
+	push ax
+	cmp word[dy1], 0
+	jg blockS
+	mov ax, 0
+	sub ax, step
+	MOV word[dx1], 0
+	MOV word[dy1], ax
+	blockS:
+	JMP direcao
+	pop ax
+
+set_D:
+	push ax
+	cmp word[dx1], 0
+	jl blockD
+	mov ax, step
+	MOV word[dx1], ax
+	MOV word[dy1], 0
+	blockD:
+	JMP direcao
+	pop ax
+
+set_arrowUP:
+	push ax
+	cmp word[dy2], 0
+	jl blockUP
+	mov ax, step
+	MOV word[dx2], 0
+	MOV word[dy2], ax
+	blockUP:
+	JMP direcao
+	pop ax
+
+set_arrowLEFT:
+	push ax
+	cmp word[dx2], 0
+	jg blockLEFT
+	mov ax, 0
+	sub ax, step
+	MOV word[dx2], ax
+	MOV word[dy2], 0
+	blockLEFT:
+	JMP direcao
+	pop ax
+
+set_arrowDOWN:
+	push ax
+	cmp word[dy2], 0
+	jg blockDOWN
+	mov ax, 0
+	sub ax, step
+	MOV word[dx2], 0
+	MOV word[dy2], ax
+	blockDOWN:
+	JMP direcao
+	pop ax
+
+set_arrowRIGHT:
+	push ax
+	cmp word[dx2], 0
+	jl blockRIGHT
+	mov ax, step
+	MOV word[dx2], ax
+	MOV word[dy2], 0
+	blockRIGHT:
+	JMP direcao
+	pop ax
 
 sai:
-	cli
-	xor ax, ax
-    mov es, ax
-    mov ax, [offset_dos_tec]
-    mov [es:INT9*4], ax
-    mov ax, [cs_dos_tec]
-    mov [es:INT9*4+2], ax
-    sti
+	CALL unsetKeyINT
+	CALL unsetClockINT
 
-    CLI									; Deshabilita Interrupções por harDWare - pin INTR NÃO atende Interrupções externas							
-    XOR     AX, AX						; Limpa o registrador AX, é equivalente a fazer "MOV AX,0"
-    MOV     ES, AX						; Inicializa o registrador de Segmento Extra ES para acessar à região de vetores de INTerrupção (posição zero de memoria)
-    MOV     AX, [cs_dos_clock]				; Carrega em AX o valor do CS do vector de INTerrupção 8 que foi salvo na variável cs_dos -> linha 16
-    MOV     [ES:INTr*4+2], AX			; Atualiza o valor do CS do vector de INTerrupção 8 que foi salvo na variável cs_dos
-    MOV     AX, [offset_dos_clock]			; Carrega em AX o valor do IP do vector de INTerrupção 8 que foi salvo na variável offset_dos				
-    MOV     [ES:INTr*4], AX 			; Atualiza o valor do IP do vector de INTerrupção 8 que foi salvo na variável offset_dos
-	; INT     21h							; Chama Interrupção 21h para RETornar o controle ao sistema operacional -> sai de forma segura da execução do programa
-	sti
+    ; CLI									; Deshabilita Interrupções por harDWare - pin INTR NÃO atende Interrupções externas							
+    ; XOR     AX, AX						; Limpa o registrador AX, é equivalente a fazer "MOV AX,0"
+    ; MOV     ES, AX						; Inicializa o registrador de Segmento Extra ES para acessar à região de vetores de INTerrupção (posição zero de memoria)
+    ; MOV     AX, [cs_dos_clock]				; Carrega em AX o valor do CS do vector de INTerrupção 8 que foi salvo na variável cs_dos -> linha 16
+    ; MOV     [ES:INTr*4+2], AX			; Atualiza o valor do CS do vector de INTerrupção 8 que foi salvo na variável cs_dos
+    ; MOV     AX, [offset_dos_clock]			; Carrega em AX o valor do IP do vector de INTerrupção 8 que foi salvo na variável offset_dos				
+    ; MOV     [ES:INTr*4], AX 			; Atualiza o valor do IP do vector de INTerrupção 8 que foi salvo na variável offset_dos
+	; ; INT     21h							; Chama Interrupção 21h para RETornar o controle ao sistema operacional -> sai de forma segura da execução do programa
+	; sti
 
 	mov ax, 0003h      ; AH=00h set video mode, AL=03h text 80x25
     int 10h            ; set video mode clears screen e volta pro texto
@@ -190,6 +362,620 @@ sai:
     ; INT 10h
     ; MOV AX,4Ch
     ; INT 21h
+
+;	int xPlot, yPlot, step
+;	meioQuadrado = step >> 1
+;	for(int y = yPlot + meioQuadrado; y >= yPlot - meioQuadrado)
+;
+;
+;
+;
+plot:
+	PUSH AX
+    MOV		AX,[xPlot]
+    PUSH	AX
+    MOV		AX,[yPlot]
+    PUSH	AX
+	mov		AX, step
+	shr		AX, 1
+	PUSH 	AX
+    CALL	full_circle
+	POP AX
+	RET
+
+
+; int x[max_size]
+; int y[max_size]
+; int size, dx, dy
+; for i = size; i > 0; i--;
+;   x[i] = x[i-1]
+;   y[i] = y[i-1]
+; 
+; x[0], y[0] = soma o delta e atravessa a tela se precisar
+; de x/y[0] ate x/y[size-1] pintar vermelho
+; x/y[size] pintar preto
+;
+atualizaPos:
+	PUSH DX
+	PUSH CX
+	PUSH BX
+	PUSH AX
+	PUSH SI
+
+
+	;cobra 1
+
+	mov CX, [size1]
+	cmp cx, 0
+	je fim_atualizaVetor1
+
+	atualizaVetor1:
+		mov si, cx
+		shl si, 1			; SI = CX * 2
+
+		mov ax, [x1 + si - 2]	; x[i] = x[i-1]
+		mov [x1 + si], ax
+
+		mov ax, [y1 + si - 2]	; y[i] = y[i-1]
+		mov [y1 + si], ax
+	loop atualizaVetor1
+
+	fim_atualizaVetor1:
+
+	mov dx, step
+	shr dx,1		;	DX = meio step (+1 pela beirada)
+	inc dx
+
+	mov ax, [x1]
+		cmp word [dx1], 0
+		je fimHorizontal1
+	add ax, [dx1]
+	
+	
+	cmp ax, dx					; borda esquerda: se x <= meio step, passa p/ 639 - meio step
+	jg nBordaEsq1
+		mov word ax, 639
+		sub ax, dx
+		jmp fimHorizontal1
+	nBordaEsq1:
+
+	mov bx, 639					; borda direita: se x >= 639 - meio step, passa p/ meio step
+	sub bx, dx
+	cmp ax, bx
+	jl fimHorizontal1
+		mov word ax, dx
+	fimHorizontal1:	
+
+	mov [x1], ax
+	
+	mov ax, [y1]
+		cmp word [dy1], 0
+		je fimVertical1
+	add ax, [dy1]
+
+	cmp ax, dx					; borda baixo: se y <= meio step, vira 479 - meio step
+	jg nBordaBaixo1
+		mov word ax, 479
+		sub ax, dx
+		jmp fimVertical1
+	nBordaBaixo1:
+
+	mov bx, 479					; borda cima: se y >= 479 - meio step, vira meio step
+	sub bx, dx
+	cmp ax,bx
+	jl fimVertical1
+		mov word ax, dx
+	fimVertical1:
+
+	mov [y1], ax
+
+
+
+	;cobra 2
+	mov CX, [size2]
+	cmp cx, 0
+	je fim_atualizaVetor2
+
+	atualizaVetor2:
+		mov si, cx
+		shl si, 1			; SI = CX * 2
+
+		mov ax, [x2 + si - 2]	; x[i] = x[i-1]
+		mov [x2 + si], ax
+
+		mov ax, [y2 + si - 2]	; y[i] = y[i-1]
+		mov [y2 + si], ax
+	loop atualizaVetor2
+
+	fim_atualizaVetor2:
+
+	mov ax, [x2]
+		cmp word [dx2], 0
+		je fimHorizontal2
+	add ax, [dx2]
+
+	cmp ax, dx					; borda esquerda: se x <= meio step, passa p/ 639 - meio step
+	jg nBordaEsq2
+		mov word ax, 639
+		sub ax, dx
+		jmp fimHorizontal2
+	nBordaEsq2:
+
+	mov bx, 639					; borda direita: se x >= 639 - meio step, passa p/ meio step
+	sub bx, dx
+	cmp ax, bx
+	jl fimHorizontal2
+		mov word ax, dx
+	fimHorizontal2:	
+
+	mov [x2], ax
+	
+	mov ax, [y2]
+		cmp word [dy2], 0
+		je fimVertical2
+	add ax, [dy2]
+
+	cmp ax, dx					; borda baixo: se y <= meio step, vira 479 - meio step
+	jg nBordaBaixo2
+		mov word ax, 479
+		sub ax, dx
+		jmp fimVertical2
+	nBordaBaixo2:
+
+	mov bx, 479					; borda cima: se y >= 479 - meio step, vira meio step
+	sub bx, dx
+	cmp ax,bx
+	jl fimVertical2
+		mov word ax, dx
+	fimVertical2:
+
+	mov [y2], ax
+
+
+	; eh
+
+	mov cx, [size1]
+	dec cx
+	loopColisaoCobra1:
+		call colisao_cobra1
+	loop loopColisaoCobra1
+
+	mov cx, [num_frutas]
+	loopColisaoFrutinhas1:
+		call colisao_fruta1
+	loop loopColisaoFrutinhas1
+
+	mov cx, [num_frutas]
+	loopColisaoFrutinhas2:
+		call colisao_fruta2
+	loop loopColisaoFrutinhas2
+	
+	call plotCobra1
+	call plotCobra2
+
+	POP SI
+	POP AX
+	POP BX
+	POP CX
+	POP DX
+	RET
+colisao_cobra1:
+	mov si, cx
+	shl si, 1
+
+	mov ax, [x1 + si]						
+	add ax, 5
+	cmp [x1], ax
+	jng missColisaoDireita1c1							
+		jmp sem_colisao_cobra1
+	missColisaoDireita1c1:
+
+	sub ax, 5
+	sub ax, 5
+	cmp [x1], ax
+	jnl missColisaoEsquerda1c1							; se x1 < hitbox esquerda, nao encostou
+		jmp sem_colisao_cobra1
+	missColisaoEsquerda1c1:
+
+	mov ax, [y1 + si]						; -- -- -- y da fruta
+	add ax, 5
+	cmp [y1], ax
+	jng missColisaoCima1c1							
+		jmp sem_colisao_cobra1					; se y1 > hitbox cima, nao encostou
+	missColisaoCima1c1:
+
+	sub ax, 5								; se y1 < hitbox baixo, nao encostou
+	sub ax, 5
+	cmp [y1], ax
+	jnl missColisaoBaixo1c1
+		jmp sem_colisao_cobra1
+	missColisaoBaixo1c1:
+
+	call perdeVida1
+
+	sem_colisao_cobra1:
+	ret
+colisao_fruta1:					
+	;frutinha 1 cobra 1	
+		mov si, cx
+		shl si, 1
+
+		cmp word[val1 + si], 0						; se fruta valida 1 = 0, termina verificacao
+		jne fruta_existe1c1 	
+			jmp fim_colisao_fruta1
+		fruta_existe1c1:
+
+
+		mov ax, [fruitX1 + si]						; ax recebe posicao x da fruta
+		add ax, step
+		cmp [x1], ax
+		jng missDireita1c1							; se x1 > hitbox direita, nao encostou
+			jmp frutinha1_cobra2
+		missDireita1c1:
+
+		sub ax, step
+		sub ax, step
+		cmp [x1], ax
+		jnl missEsquerda1c1							; se x1 < hitbox esquerda, nao encostou
+			jmp frutinha1_cobra2
+		missEsquerda1c1:
+
+		mov ax, [fruitY1 + si]						; -- -- -- y da fruta
+		add ax, step
+		cmp [y1], ax
+		jng missCima1c1							
+			jmp frutinha1_cobra2					; se y1 > hitbox cima, nao encostou
+		missCima1c1:
+
+		sub ax, step								; se y1 < hitbox baixo, nao encostou
+		sub ax, step
+		cmp [y1], ax
+		jnl missBaixo1c1
+			jmp frutinha1_cobra2
+		missBaixo1c1:
+
+		; cobrinha 1 pegou fruta 1
+			mov word[val1 + si], 0						; desativa a frutinha
+			
+			
+			mov ax, preto								; apaga a frutinha	
+			MOV		byte[cor],al
+			mov ax, [fruitX1 + si]
+			push ax
+			mov ax, [fruitY1 + si]
+			push ax
+			mov		AX, 3
+			PUSH 	AX
+			CALL	full_circle
+
+			mov ax, [size1]								; aumenta a cobrinha 1
+			inc ax
+			mov [size1], ax
+
+		jmp fim_colisao_fruta1						; se cobrinha 1 pegou, não precisa checar cobrinha 2
+	; frutinha 1 cobra 2
+	frutinha1_cobra2:
+
+		mov ax, [fruitX1 + si]						; ax recebe posicao x da fruta
+		add ax, step
+		cmp [x2], ax
+		jng missDireita1c2							; se x2 > hitbox direita, nao encostou
+			jmp fim_colisao_fruta1
+		missDireita1c2:
+
+		sub ax, step
+		sub ax, step
+		cmp [x2], ax
+		jnl missEsquerda1c2							; se x2 < hitbox esquerda, nao encostou
+			jmp fim_colisao_fruta1
+		missEsquerda1c2:
+
+		mov ax, [fruitY1 + si]						; -- -- -- y da fruta
+		add ax, step
+		cmp [y2], ax
+		jng missCima1c2							
+			jmp fim_colisao_fruta1					; se y2 > hitbox cima, nao encostou
+		missCima1c2:
+
+		sub ax, step
+		sub ax, step								; se y2 < hitbox baixo, nao encostou
+		cmp [y2], ax
+		jnl missBaixo1c2
+			jmp fim_colisao_fruta1
+		missBaixo1c2:
+
+		; cobrinha 2 pegou fruta 1
+		mov word[val1 + si], 0						; desativa a frutinha
+
+		mov ax, preto								; apaga a frutinha	
+		MOV		byte[cor],al
+		mov ax, [fruitX1 + si]
+		push ax
+		mov ax, [fruitY1 + si]
+		push ax
+		mov		AX, 3
+		PUSH 	AX
+		CALL	full_circle
+
+		mov ax, [size1]								; aumenta a cobrinha 1
+		inc ax
+		mov [size1], ax
+
+		call diminuiCobra2							; diminui cobrinha 2
+
+	fim_colisao_fruta1:
+	ret
+
+colisao_fruta2:					
+	;frutinha 2 cobra 2	
+		mov si, cx
+		shl si, 1
+
+		cmp word[val2 + si], 0						; se fruta valida 2 = 0, termina verificacao
+		jne fruta_existe2c2 	
+			jmp fim_colisao_fruta2
+		fruta_existe2c2:
+
+
+		mov ax, [fruitX2 + si]						; ax recebe posicao x da fruta
+		add ax, step
+		cmp [x2], ax
+		jng missDireita2c2							; se x2 > hitbox direita, nao encostou
+			jmp frutinha2_cobra1
+		missDireita2c2:
+
+		sub ax, step
+		sub ax, step
+		cmp [x2], ax
+		jnl missEsquerda2c2							; se x2 < hitbox esquerda, nao encostou
+			jmp frutinha2_cobra1
+		missEsquerda2c2:
+
+		mov ax, [fruitY2 + si]						; -- -- -- y da fruta
+		add ax, step
+		cmp [y2], ax
+		jng missCima2c2							
+			jmp frutinha2_cobra1					; se y1 > hitbox cima, nao encostou
+		missCima2c2:
+
+		sub ax, step								; se y1 < hitbox baixo, nao encostou
+		sub ax, step
+		cmp [y2], ax
+		jnl missBaixo2c2
+			jmp frutinha2_cobra1
+		missBaixo2c2:
+
+		; cobrinha 2 pegou fruta 2
+			mov word[val2 + si], 0						; desativa a frutinha
+			
+			
+			mov ax, preto								; apaga a frutinha	
+			MOV		byte[cor],al
+			mov ax, [fruitX2 + si]
+			push ax
+			mov ax, [fruitY2 + si]
+			push ax
+			mov		AX, 3
+			PUSH 	AX
+			CALL	full_circle
+
+			mov ax, [size2]								; aumenta a cobrinha 2
+			inc ax
+			mov [size2], ax
+
+		jmp fim_colisao_fruta2						; se cobrinha 2 pegou, não precisa checar cobrinha 1
+	; frutinha 2 cobra 1
+	frutinha2_cobra1:
+
+		mov ax, [fruitX2 + si]						; ax recebe posicao x da fruta 2
+		add ax, step
+		cmp [x1], ax
+		jng missDireita2c1							; se x1 > hitbox direita, nao encostou
+			jmp fim_colisao_fruta2
+		missDireita2c1:
+
+		sub ax, step
+		sub ax, step
+		cmp [x1], ax
+		jnl missEsquerda2c1							; se x1 < hitbox esquerda, nao encostou
+			jmp fim_colisao_fruta2
+		missEsquerda2c1:
+
+		mov ax, [fruitY2 + si]						; -- -- -- y da fruta 2
+		add ax, step
+		cmp [y1], ax
+		jng missCima2c1							
+			jmp fim_colisao_fruta2					; se y1 > hitbox cima, nao encostou
+		missCima2c1:
+
+		sub ax, step
+		sub ax, step								; se y1 < hitbox baixo, nao encostou
+		cmp [y1], ax
+		jnl missBaixo2c1
+			jmp fim_colisao_fruta2
+		missBaixo2c1:
+
+		; cobrinha 1 pegou fruta 2
+		mov word[val2 + si], 0						; desativa a frutinha
+
+		mov ax, preto								; apaga a frutinha	
+		MOV		byte[cor],al
+		mov ax, [fruitX2 + si]
+		push ax
+		mov ax, [fruitY2 + si]
+		push ax
+		mov		AX, 3
+		PUSH 	AX
+		CALL	full_circle
+
+		mov ax, [size2]								; aumenta a cobrinha 2
+		inc ax
+		mov [size2], ax
+
+		call diminuiCobra1							; diminui cobrinha 1
+
+	fim_colisao_fruta2:
+	ret
+
+
+diminuiCobra1:
+	PUSH AX				; pinta a cauda a ser removida de preto
+	PUSH SI
+	
+	mov ax, [size1]		; se tamanho da cobra for = 2, perde vida ao invés de perder tamanho
+	cmp ax, 2
+	jne naoPerdeVida1
+		call perdeVida1
+		jmp naoPerdeTamanho1
+	naoPerdeVida1:
+		mov ax, preto
+		mov byte[cor], al
+		mov si, [size1]
+		shl si, 1
+		mov ax, [x1 + si]
+		mov [xPlot], ax
+		mov ax, [y1 + si]
+		mov [yPlot], ax
+		call plot
+
+		mov ax, [size1]
+		dec ax
+		mov [size1], ax
+	naoPerdeTamanho1:
+
+	POP SI
+	POP AX
+	RET
+
+perdeVida1:
+	push ax
+	mov ax, [vida1]
+	dec ax
+	mov [vida1], ax
+	cmp ax, 0
+	jne naoExterminio1
+		mov word[size1], 30			; aqui vai chamar game over
+	naoExterminio1:
+	pop ax
+	ret
+diminuiCobra2:
+	PUSH AX				; pinta a cauda a ser removida de preto
+	PUSH SI
+	
+	mov ax, [size2]		; se tamanho da cobra for = 2, perde vida ao invés de perder tamanho
+	cmp ax, 2
+	jne naoPerdeVida2
+		call perdeVida2
+		jmp naoPerdeTamanho2
+	naoPerdeVida2:
+		mov ax, preto
+		mov byte[cor], al
+		mov si, [size2]
+		shl si, 1
+		mov ax, [x2 + si]
+		mov [xPlot], ax
+		mov ax, [y2 + si]
+		mov [yPlot], ax
+		call plot
+
+		mov ax, [size2]
+		dec ax
+		mov [size2], ax
+	naoPerdeTamanho2:
+
+	POP SI
+	POP AX
+	RET
+
+perdeVida2:
+	push ax
+	mov ax, [vida2]
+	dec ax
+	mov [vida2], ax
+	cmp ax, 0
+	jne naoExterminio2
+		mov word[size2], 10			; aqui vai chamar game over
+	naoExterminio2:
+	pop ax
+	ret
+
+plotCobra1:
+	mov ax, preto
+	mov byte[cor], al
+	mov si, [size1]
+	shl si, 1
+	mov ax, [x1 + si]
+	mov [xPlot], ax
+	mov ax, [y1 + si]
+	mov [yPlot], ax
+	call plot
+	
+	mov cx, [size1]
+	dec cx
+	
+	mov ax, vermelho
+	mov byte[cor], al
+	pinta_vermelho1:
+		mov si, cx
+		shl si, 1
+		mov ax, [x1 + si]
+		mov [xPlot], ax
+		mov ax, [y1 + si]
+		mov [yPlot], ax
+		call plot
+	loop pinta_vermelho1
+	RET
+
+plotCobra2:
+	mov ax, preto
+	mov byte[cor], al
+	mov si, [size2]
+	shl si, 1
+	mov ax, [x2 + si]
+	mov [xPlot], ax
+	mov ax, [y2 + si]
+	mov [yPlot], ax
+	call plot
+	
+	mov cx, [size2]
+	dec cx
+	
+	mov ax, cyan
+	mov byte[cor], al
+	pinta_azul2:
+		mov si, cx
+		shl si, 1
+		mov ax, [x2 + si]
+		mov [xPlot], ax
+		mov ax, [y2 + si]
+		mov [yPlot], ax
+		call plot
+	loop pinta_azul2
+	RET
+
+	; mov AX, preto
+	; MOV	byte[cor],al
+	
+	; MOV AX, [x1]
+	; MOV [xPlot], AX
+
+	; MOV DX, [y1]
+	; MOV [yPlot], DX
+
+	; CALL plot
+
+	; ADD AX, [dx1]
+	; ADD DX, [dy1]
+
+	; MOV [xPlot], AX
+	; MOV [yPlot], DX
+	; MOV [x1], AX
+	; MOV [y1], DX
+
+	; mov AX, vermelho
+	; MOV	byte[cor],al
+
+	; CALL plot
 ;FUNCOES GRAFICAS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;função plot_xy
@@ -200,607 +986,77 @@ sai:
 ;função cursor
 ; Parametros:
 ; 	DH = linha (0-29) e  DL = coluna  (0-79)
-cursor:
-		PUSHf
-		PUSH 	AX
-		PUSH 	BX
-		PUSH	CX
-		PUSH	DX
-		PUSH	SI
-		PUSH	DI
-		PUSH	BP
-		MOV     AH,2
-		MOV     BH,0
-		INT     10h
-		POP		BP
-		POP		DI
-		POP		SI
-		POP		DX
-		POP		CX
-		POP		BX
-		POP		AX
-		POPf
-		RET
-;-----------------------------------------------------------------------------
-;função caracter escrito na posição do cursor
-; Parametros:
-; 	AL = caracter a ser escrito
-; 	cor definida na variavel cor
-caracter:
-		PUSHf
-		PUSH 	AX
-		PUSH 	BX
-		PUSH	CX
-		PUSH	DX
-		PUSH	SI
-		PUSH	DI
-		PUSH	BP
-    	MOV     AH,9
-    	MOV     BH,0
-    	MOV     CX,1
-   		MOV     bl,[cor]
-    	INT     10h
-		POP		BP
-		POP		DI
-		POP		SI
-		POP		DX
-		POP		CX
-		POP		BX
-		POP		AX
-		POPf
-		RET
-;-----------------------------------------------------------------------------
-;função plot_xy
-; Parametros:
-;	PUSH x; PUSH y; CALL plot_xy;  (x<639, y<479)
-; 	cor definida na variavel cor
-plot_xy:
-		PUSH	BP
-		MOV		BP,SP
-		PUSHf
-		PUSH 	AX
-		PUSH 	BX
-		PUSH	CX
-		PUSH	DX
-		PUSH	SI
-		PUSH	DI
-	    MOV     AH,0Ch
-	    MOV     AL,[cor]
-	    MOV     BH,0
-	    MOV     DX,479
-		SUB		DX,[BP+4]
-	    MOV     CX,[BP+6]
-	    INT     10h
-		POP		DI
-		POP		SI
-		POP		DX
-		POP		CX
-		POP		BX
-		POP		AX
-		POPf
-		POP		BP
-		RET		4
-;-----------------------------------------------------------------------------
-;função circle
-; Parametros:
-;	PUSH xc; PUSH yc; PUSH r; CALL circle;  (xc+r<639,yc+r<479)e(xc-r>0,yc-r>0)
-; 	cor definida na variavel cor
-circle:
-	PUSH 	BP
-	MOV	 	BP,SP
-	PUSHf                        	;coloca os flags na pilha
-	PUSH 	AX
-	PUSH 	BX
-	PUSH	CX
-	PUSH	DX
-	PUSH	SI
-	PUSH	DI
-	
-	MOV		AX,[BP+8]    			;resgata xc
-	MOV		BX,[BP+6]    			;resgata yc
-	MOV		CX,[BP+4]    			;resgata r
-	
-	MOV 	DX,BX	
-	ADD		DX,CX       			;ponto extremo superior
-	PUSH    AX			
-	PUSH	DX
-	CALL plot_xy
-	
-	MOV		DX,BX
-	SUB		DX,CX       			;ponto extremo inferior
-	PUSH    AX			
-	PUSH	DX
-	CALL plot_xy
-	
-	MOV 	DX,AX	
-	ADD		DX,CX       			;ponto extremo DIreita
-	PUSH    DX			
-	PUSH	BX
-	CALL plot_xy
-	
-	MOV		DX,AX
-	SUB		DX,CX       			;ponto extremo esquerda
-	PUSH    DX			
-	PUSH	BX
-	CALL plot_xy
-		
-	MOV		DI,CX
-	SUB		DI,1	 				;DI = r-1
-	MOV		DX,0  					;DX será a variável x. CX é a variavel y
-	
-;Aqui em cima a lógica foi invertida, 1-r => r-1 e as comparações passaram a 
-; ser JL => JG, assim garante valores positivos para d
 
-stay:								;LOOP
-	MOV		SI,DI
-	CMP		SI,0
-	JG		inf       				;caso d for menor que 0, seleciona pixel superior (não  SALta)
-	MOV		SI,DX					;o JL é importante porque trata-se de conta com sinal
-	SAL		SI,1					;multiplica por dois (shift arithmetic left)
-	ADD		SI,3
-	ADD		DI,SI     				;nesse ponto d = d+2*DX+3
-	INC		DX						;Incrementa DX
-	JMP		plotar
-inf:	
-	MOV		SI,DX
-	SUB		SI,CX  					;faz x - y (DX-CX), e SALva em DI 
-	SAL		SI,1
-	ADD		SI,5
-	ADD		DI,SI					;nesse ponto d = d+2*(DX-CX)+5
-	INC		DX						;Incrementa x (DX)
-	DEC		CX						;Decrementa y (CX)
-	
-plotar:	
-	MOV		SI,DX
-	ADD		SI,AX
-	PUSH    SI						;coloca a abcisa x+xc na pilha
-	MOV		SI,CX
-	ADD		SI,BX
-	PUSH    SI						;coloca a ordenada y+yc na pilha
-	CALL plot_xy					;toma conta do segundo octante
-	MOV		SI,AX
-	ADD		SI,DX
-	PUSH    SI						;coloca a abcisa xc+x na pilha
-	MOV		SI,BX
-	SUB		SI,CX
-	PUSH    SI						;coloca a ordenada yc-y na pilha
-	CALL plot_xy					;toma conta do s�timo octante
-	MOV		SI,AX
-	ADD		SI,CX
-	PUSH    SI						;coloca a abcisa xc+y na pilha
-	MOV		SI,BX
-	ADD		SI,DX
-	PUSH    SI						;coloca a ordenada yc+x na pilha
-	CALL plot_xy					;toma conta do segundo octante
-	MOV		SI,AX
-	ADD		SI,CX
-	PUSH    SI						;coloca a abcisa xc+y na pilha
-	MOV		SI,BX
-	SUB		SI,DX
-	PUSH    SI						;coloca a ordenada yc-x na pilha
-	CALL plot_xy					;toma conta do oitavo octante
-	MOV		SI,AX
-	SUB		SI,DX
-	PUSH    SI						;coloca a abcisa xc-x na pilha
-	MOV		SI,BX
-	ADD		SI,CX
-	PUSH    SI						;coloca a ordenada yc+y na pilha
-	CALL plot_xy					;toma conta do terceiro octante
-	MOV		SI,AX
-	SUB		SI,DX
-	PUSH    SI						;coloca a abcisa xc-x na pilha
-	MOV		SI,BX
-	SUB		SI,CX
-	PUSH    SI						;coloca a ordenada yc-y na pilha
-	CALL plot_xy					;toma conta do sexto octante
-	MOV		SI,AX
-	SUB		SI,CX
-	PUSH    SI						;coloca a abcisa xc-y na pilha
-	MOV		SI,BX
-	SUB		SI,DX
-	PUSH    SI						;coloca a ordenada yc-x na pilha
-	CALL plot_xy					;toma conta do quINTo octante
-	MOV		SI,AX
-	SUB		SI,CX
-	PUSH    SI						;coloca a abcisa xc-y na pilha
-	MOV		SI,BX
-	ADD		SI,DX
-	PUSH    SI						;coloca a ordenada yc-x na pilha
-	CALL plot_xy					;toma conta do quarto octante
-	
-	CMP		CX,DX
-	JB		fim_circle  			;se CX (y) está abaixo de DX (x), termina     
-	JMP		stay					;se CX (y) está acima de DX (x), continua no LOOP
-	
-fim_circle:
-	POP		DI
-	POP		SI
-	POP		DX
-	POP		CX
-	POP		BX
-	POP		AX
-	POPf
-	POP		BP
-	RET		6
-;-----------------------------------------------------------------------------
-;função full_circle
-; Parametros:
-;	PUSH xc; PUSH yc; PUSH r; CALL full_circle;  (xc+r<639,yc+r<479)e(xc-r>0,yc-r>0)
-; 	cor definida na variavel cor					  
-full_circle:
-	PUSH 	BP
-	MOV	 	BP,SP
-	PUSHf                        ;coloca os flags na pilha
-	PUSH 	AX
-	PUSH 	BX
-	PUSH	CX
-	PUSH	DX
-	PUSH	SI
-	PUSH	DI
-
-	MOV		AX,[BP+8]    		;resgata xc
-	MOV		BX,[BP+6]    		;resgata yc
-	MOV		CX,[BP+4]    		;resgata r
-	
-	MOV		SI,BX
-	SUB		SI,CX
-	PUSH    AX					;coloca xc na pilha			
-	PUSH	SI					;coloca yc-r na pilha
-	MOV		SI,BX
-	ADD		SI,CX
-	PUSH	AX					;coloca xc na pilha
-	PUSH	SI					;coloca yc+r na pilha
-	CALL line
-		
-	MOV		DI,CX
-	SUB		DI,1	 			;DI = r-1
-	MOV		DX,0  				;DX será a variável x. CX é a variavel y
-	
-;aqui em cima a lógica foi invertida, 1-r => r-1 e as comparações passaram a ser
-;JL => JG, assimm garante valores positivos para d
-
-stay_full:						;LOOP
-	MOV		SI,DI
-	CMP		SI,0
-	JG		inf_full       		;caso d for menor que 0, seleciona pixel superior (não  salta)
-	MOV		SI,DX				;o JL é importante porque trata-se de conta com sinal
-	SAL		SI,1				;multiplica por doi (shift arithmetic left)
-	ADD		SI,3
-	ADD		DI,SI     			;nesse ponto d = d+2*DX+3
-	INC		DX					;Incrementa DX
-	JMP		plotar_full
-inf_full:	
-	MOV		SI,DX
-	SUB		SI,CX  				;faz x - y (DX-CX), e salva em DI 
-	SAL		SI,1
-	ADD		SI,5
-	ADD		DI,SI				;nesse ponto d=d+2*(DX-CX)+5
-	INC		DX					;Incrementa x (DX)
-	DEC		CX					;Decrementa y (CX)
-	
-plotar_full:	
-	MOV		SI,AX
-	ADD		SI,CX
-	PUSH	SI					;coloca a abcisa y+xc na pilha			
-	MOV		SI,BX
-	SUB		SI,DX
-	PUSH    SI					;coloca a ordenada yc-x na pilha
-	MOV		SI,AX
-	ADD		SI,CX
-	PUSH	SI					;coloca a abcisa y+xc na pilha	
-	MOV		SI,BX
-	ADD		SI,DX
-	PUSH    SI					;coloca a ordenada yc+x na pilha	
-	CALL 	line
-	
-	MOV		SI,AX
-	ADD		SI,DX
-	PUSH	SI					;coloca a abcisa xc+x na pilha			
-	MOV		SI,BX
-	SUB		SI,CX
-	PUSH    SI					;coloca a ordenada yc-y na pilha
-	MOV		SI,AX
-	ADD		SI,DX
-	PUSH	SI					;coloca a abcisa xc+x na pilha	
-	MOV		SI,BX
-	ADD		SI,CX
-	PUSH    SI					;coloca a ordenada yc+y na pilha	
-	CALL	line
-	
-	MOV		SI,AX
-	SUB		SI,DX
-	PUSH	SI					;coloca a abcisa xc-x na pilha			
-	MOV		SI,BX
-	SUB		SI,CX
-	PUSH    SI					;coloca a ordenada yc-y na pilha
-	MOV		SI,AX
-	SUB		SI,DX
-	PUSH	SI					;coloca a abcisa xc-x na pilha	
-	MOV		SI,BX
-	ADD		SI,CX
-	PUSH    SI					;coloca a ordenada yc+y na pilha	
-	CALL	line
-	
-	MOV		SI,AX
-	SUB		SI,CX
-	PUSH	SI					;coloca a abcisa xc-y na pilha			
-	MOV		SI,BX
-	SUB		SI,DX
-	PUSH    SI					;coloca a ordenada yc-x na pilha
-	MOV		SI,AX
-	SUB		SI,CX
-	PUSH	SI					;coloca a abcisa xc-y na pilha	
-	MOV		SI,BX
-	ADD		SI,DX
-	PUSH    SI					;coloca a ordenada yc+x na pilha	
-	CALL	line
-	
-	CMP		CX,DX
-	JB		fim_full_circle  	;se CX (y) está abaixo de DX (x), termina     
-	JMP		stay_full			;se CX (y) está acima de DX (x), continua no LOOP
-	
-fim_full_circle:
-	POP		DI
-	POP		SI
-	POP		DX
-	POP		CX
-	POP		BX
-	POP		AX
-	POPf
-	POP		BP
-	RET		6
-;-----------------------------------------------------------------------------
-;função line
-; Parametros:
-;	PUSH x1; PUSH y1; PUSH x2; PUSH y2; CALL line;  (x<639, y<479)
-line:
-		PUSH	BP
-		MOV		BP,SP
-		PUSHf             		;coloca os flags na pilha
-		PUSH 	AX
-		PUSH 	BX
-		PUSH	CX
-		PUSH	DX
-		PUSH	SI
-		PUSH	DI
-		MOV		AX,[BP+10]   	;resgata os vALores das coordenadas
-		MOV		BX,[BP+8]    	;resgata os vALores das coordenadas
-		MOV		CX,[BP+6]    	;resgata os vALores das coordenadas
-		MOV		DX,[BP+4]    	;resgata os vALores das coordenadas
-		CMP		AX,CX
-		JE		line2
-		JB		line1
-		XCHG	AX,CX
-		XCHG	BX,DX
-		JMP		line1
-line2:							;deltax = 0
-		CMP		BX,DX  			;Subtrai DX de BX
-		JB		line3
-		XCHG	BX,DX        	;troca os valores de BX e DX entre eles
-line3:							;DX > BX
-		PUSH	AX
-		PUSH	BX
-		CALL 	plot_xy
-		CMP		BX,DX
-		JNE		line31
-		JMP		fim_line
-line31:	INC		BX
-		JMP		line3
-;deltAX <>0
-line1:
-;Comparar módulos de deltax e deltay sabendo que CX>AX
-	; CX > AX
-		PUSH	CX
-		SUB		CX,AX
-		MOV		[deltAX],CX
-		POP		CX
-		PUSH	DX
-		SUB		DX,BX
-		JA		line32
-		NEG		DX
-line32:		
-		MOV		[deltay],DX
-		POP		DX
-
-		PUSH	AX
-		MOV		AX,[deltAX]
-		CMP		AX,[deltay]
-		POP		AX
-		JB		line5
-; CX > AX e deltAX>deltay
-		PUSH	CX
-		SUB		CX,AX
-		MOV		[deltAX],CX
-		POP		CX
-		PUSH	DX
-		SUB		DX,BX
-		MOV		[deltay],DX
-		POP		DX
-
-		MOV		SI,AX
-line4:
-		PUSH	AX
-		PUSH	DX
-		PUSH	SI
-		SUB		SI,AX	;(x-x1)
-		MOV		AX,[deltay]
-		IMUL	SI
-		MOV		SI,[deltAX]		;arredondar
-		SHR		SI,1
-;Se numerador (DX)>0 soma se <0 Subtrai
-		CMP		DX,0
-		JL		ar1
-		ADD		AX,SI
-		ADC		DX,0
-		JMP		arc1
-ar1:	SUB		AX,SI
-		SBB		DX,0
-arc1:
-		IDIV	word [deltAX]
-		ADD		AX,BX
-		POP		SI
-		PUSH	SI
-		PUSH	AX
-		CALL	plot_xy
-		POP		DX
-		POP		AX
-		CMP		SI,CX
-		JE		fim_line
-		INC		SI
-		JMP		line4
-
-line5:	CMP		BX,DX
-		JB 		line7
-		XCHG	AX,CX
-		XCHG	BX,DX
-line7:
-		PUSH	CX
-		SUB		CX,AX
-		MOV		[deltAX],CX
-		POP		CX
-		PUSH	DX
-		SUB		DX,BX
-		MOV		[deltay],DX
-		POP		DX
-
-		MOV		SI,BX
-line6:
-		PUSH	DX
-		PUSH	SI
-		PUSH	AX
-		SUB		SI,BX	;(y-y1)
-		MOV		AX,[deltAX]
-		IMUL	SI
-		MOV		SI,[deltay]		;arredondar
-		SHR		SI,1
-;Se numerador (DX)>0 soma se <0 subtrai
-		CMP		DX,0
-		JL		ar2
-		ADD		AX,SI
-		ADC		DX,0
-		JMP		arc2
-ar2:	SUB		AX,SI
-		SBB		DX,0
-arc2:
-		IDIV	word [deltay]
-		MOV		DI,AX
-		POP		AX
-		ADD		DI,AX
-		POP		SI
-		PUSH	DI
-		PUSH	SI
-		CALL	plot_xy
-		POP		DX
-		CMP		SI,DX
-		JE		fim_line
-		INC		SI
-		JMP		line6
-
-fim_line:
-		POP		DI
-		POP		SI
-		POP		DX
-		POP		CX
-		POP		BX
-		POP		AX
-		POPf
-		POP		BP
-		RET		8
 ;*******************************************************************
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;TECBUF
-keyINT:							; Este segmento de código só será executado se uma tecla for presionada, ou seja, se a INT 9h for acionada!
-        PUSH    AX					; Salva contexto na pilha
-        PUSH    BX
-        PUSH    DS
- ;       MOV     AX,data				; Carrega em AX o endereço de "data" -> Região do código onde encontra-se o segemeto de dados "Segment data" 			
- ;       MOV     DS,AX					; Atualiza registrador de segmento de dados DS, isso pode ser feito no inicio do programa!
-        IN      AL, kb_data				; Le a porta 60h, que é onde está o byte do Make/Break da tecla. Esse valor é fornecido pelo chip "8255 PPI"
-        INC     WORD [p_i]				; Incrementa p_i para indicar no loop principal que uma tecla foi acionada!
-        AND     WORD [p_i],7			
-        MOV     BX,[p_i]				; Carrega p_i em BX
-        MOV     [BX+tecla],al			; Transfere o valor Make/Break da tecla armacenado em AL "linha 84" para o segmento de dados com offset DX, na variável "tecla"
-        ; IN      AL, kb_ctl				; Le porta 61h, pois o bit mais significativo "bit 7" 
-        ; OR      AL, 80h					; Faz operação lógica OR com o bit mais significativo do registrador AL (1XXXXXXX) -> Valor lido da porta 61h 
-        ; OUT     kb_ctl, AL				; Seta o bit mais significativo da porta 61h
-        ; AND     AL, 7Fh					; Restablece o valor do bit mais significativo do registrador AL (0XXXXXXX), alterado na linha 90 	
-        OUT     kb_ctl, AL				; Reinicia o registrador de dislocamento 74LS322 e Livera a interrupção "CLR do flip-flop 7474". O 8255 - Programmable Peripheral Interface (PPI) fica pronto para recever um outro código da tecla https://es.wikipedia.org/wiki/INTel_8255
-        MOV     AL, eoi					; Carrega o AL com a byte de End of Interruption, -> 20h por default
-        OUT     pictrl, AL				; Livera o PIC
-        
-        POP     DS						; Reestablece os registradores salvos na linha 79 
-        POP     BX
-        POP     AX
-        IRET							; Retorna da interrupção
 
 
-ClockINT:									; Este segmento de código só será executado se um pulso de relojio está ativo, ou seja, se a INT 8h for acionada!
-		PUSH	AX							; Salva contexto na pilha							
-		PUSH	DS
-		MOV     AX,data						; Carrega em AX o endereço de "data" -> Região do código onde encontra-se o segemeto de dados "Segment data"
-		MOV     DS,AX						; Atualiza registrador de segmento de dados DS, isso pode ser feito no inicio do programa!	
+
+; ClockINT:									; Este segmento de código só será executado se um pulso de relojio está ativo, ou seja, se a INT 8h for acionada!
+; 		PUSH	AX							; Salva contexto na pilha							
+; 		PUSH	DS
+; 		MOV     AX,data						; Carrega em AX o endereço de "data" -> Região do código onde encontra-se o segemeto de dados "Segment data"
+; 		MOV     DS,AX						; Atualiza registrador de segmento de dados DS, isso pode ser feito no inicio do programa!	
     
-		INC		byte [tique]				; Incremente variável tique toda vez que entra na interrupção
-		CMP		byte[tique], 5				; Compara variável "teique" com 18, isso para alterar os valores do relogio a cada segundo -> 18/18.2 ~1 segundo!
-		JB		Fimrel						; Se for menor que 18 pula para Fimrel
-		MOV 	byte [tique], 0				; Se não, limpa variável tique e  
+; 		INC		byte [tique]				; Incremente variável tique toda vez que entra na interrupção
+; 		CMP		byte[tique], 5				; Compara variável "teique" com 18, isso para alterar os valores do relogio a cada segundo -> 18/18.2 ~1 segundo!
+; 		JB		Fimrel						; Se for menor que 18 pula para Fimrel
+; 		MOV 	byte [tique], 0				; Se não, limpa variável tique e  
 
-       ;CALL clock_jogo 
-    	dec cx
-Fimrel:
-		MOV		AL,eoi						; Carrega o AL com a byte de End of Interruption, -> 20h por default						
-		OUT		20h,AL						; Livera o PIC que está na porta 20h
-		POP		DS							; Reestablece os registradores salvos na pilha na linha 46
-		POP		AX
-		IRET								; Retorna da interrupção
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;        ;CALL clock_jogo 
+;     	dec cx
+; Fimrel:
+; 		MOV		AL,eoiC						; Carrega o AL com a byte de End of Interruption, -> 20h por default						
+; 		OUT		20h,AL						; Livera o PIC que está na porta 20h
+; 		POP		DS							; Reestablece os registradores salvos na pilha na linha 46
+; 		POP		AX
+; 		IRET								; Retorna da interrupção
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 segment data
-    INT9    EQU 9h                  ; CÓDIGO DE INTERRUPÇÃO DE TECLADO
-    kb_data EQU 60h  				; PORTA DE LEITURA DE TECLADO
-    eoi     EQU 20h					; Byte de final de interrupção PIC - resgistrador
-    p_i     dw  0   				; Indice p/ Interrupcao (Incrementa na ISR quando pressiona/solta qualquer tecla)  
-    p_t     dw  0   				; Indice p/ Interrupcao (Incrementa após retornar da ISR quando pressiona/solta qualquer tecla)    
-    tecla_u db 0
-    offset_dos_tec  DW 1				; Variável de 2 bytes para armacenar o IP da INT 9
-    offset_dos_clock  DW 1				; Variável de 2 bytes para armacenar o IP da INT 9
-    cs_dos_tec  DW  1					; Variável de 2 bytes para armacenar o CS da INT 9
-    cs_dos_clock  DW  1					; Variável de 2 bytes para armacenar o CS da INT 9
-    tecla   resb  8					; Variável de 8 bytes para armacenar a tecla presionada. Só precisa de 2 bytes!	 
-    kb_ctl  EQU 61h  				; PORTA DE RESET PARA PEDIR NOVA INTERRUPCAO
-    pictrl  EQU 20h					; PORTA DO PIC DE TECLADO
+	step equ 10
+	maxSize equ 100
+    ; eoiC     EQU 20h					; Byte de final de interrupção PIC - resgistrador
 
-	INTr	   	EQU 08h					; Interrupção por hardware do tick
-    tique		DB  0					; Variável de 2 bytes que é incrementada a cada tick do clock ~54.9 ms 
-    
-    cor		db		branco_intenso
-                                ; I R G B COR
-    pRETo			equ		0	; 0 0 0 0 pRETo
-    azul			equ		1	; 0 0 0 1 azul
-    verde			equ		2	; 0 0 1 0 verde
-    cyan			equ		3	; 0 0 1 1 cyan
-    vermelho		equ		4	; 0 1 0 0 vermelho
-    magenta			equ		5	; 0 1 0 1 magenta
-    marrom			equ		6	; 0 1 1 0 marrom
-    branco			equ		7	; 0 1 1 1 branco
-    cinza			equ		8	; 1 0 0 0 cinza
-    azul_claro		equ		9	; 1 0 0 1 azul claro
-    verde_claro		equ		10	; 1 0 1 0 verde claro
-    cyan_claro		equ		11	; 1 0 1 1 cyan claro
-    rosa			equ		12	; 1 1 0 0 rosa
-    magenta_claro	equ		13	; 1 1 0 1 magenta claro
-    amarelo			equ		14	; 1 1 1 0 amarelo
-    branco_intenso	equ		15	; 1 1 1 1 branco INTenso
+    ; offset_dos_clock  DW 1				; Variável de 2 bytes para armacenar o IP da INT 9
+    ; cs_dos_clock  DW  1					; Variável de 2 bytes para armacenar o CS da INT 9
 
-    modo_anterior	db		0
-    linha   		dw  	0
-    coluna  		dw  	0
+	; INTr	   	EQU 08h					; Interrupção por hardware do tick
+    ; tique		DB  0					; Variável de 2 bytes que é incrementada a cada tick do clock ~54.9 ms 
+    xPlot dw 0
+	yPlot dw 0
+	
+	x1 times maxSize dw step
+	y1 times maxSize dw step
+	size1 dw 4
+	dx1 dw step
+	dy1 dw 0
+	
+	x2 times maxSize dw 479-step
+	y2 times maxSize dw step
+	
+	size2 dw 4
+	dx2 dw step
+	dy2 dw 0
 
-    deltAX			dw		0
-    deltay			dw		0	
-    mens    		db  	'Funcao Grafica'
+	maxFrutas equ 100
+	fruitX1 dw 347, 499, 298, 356, 173, 453, 617, 168, 221, 134, 545, 252, 377, 454, 602, 322, 462, 356, 170, 223, 326, 561, 489, 321, 170, 224, 27, 619, 462, 88, 199, 532, 215, 156, 502, 561, 61, 147, 230, 222, 104, 234, 427, 174, 353, 95, 384, 153, 374, 272, 450, 270, 442, 347, 211, 363, 125, 189, 64, 78, 391, 370, 514, 521, 82, 581, 202, 289, 197, 307, 519, 593, 269, 182, 166, 326, 98, 450, 289, 244, 180, 500, 299, 254, 352, 567, 220, 394, 469, 326, 437, 20, 387, 384, 472, 525, 148, 162, 216, 383
+	fruitY1 dw 382, 161, 25, 46, 340, 60, 443, 239, 215, 107, 293, 219, 111, 398, 85, 321, 24, 94, 243, 227, 236, 77, 259, 392, 61, 68, 226, 320, 194, 279, 343, 275, 412, 343, 84, 316, 451, 351, 56, 143, 172, 219, 207, 24, 157, 208, 312, 234, 221, 125, 84, 187, 402, 421, 226, 180, 20, 432, 365, 324, 154, 148, 312, 24, 345, 99, 391, 125, 301, 372, 153, 384, 259, 247, 308, 274, 427, 151, 261, 52, 23, 47, 440, 240, 286, 372, 424, 111, 257, 440, 323, 314, 202, 134, 210, 369, 207, 159, 274, 252
+	fruitX2 dw 533, 542, 33, 300, 606, 400, 508, 29, 531, 509, 437, 558, 464, 487, 260, 37, 414, 252, 508, 71, 183, 511, 397, 498, 146, 239, 548, 150, 101, 223, 402, 595, 202, 471, 186, 427, 452, 519, 525, 514, 193, 506, 181, 20, 180, 53, 521, 296, 291, 283, 600, 479, 613, 412, 408, 575, 107, 101, 573, 265, 609, 487, 188, 113, 502, 531, 439, 121, 199, 364, 355, 616, 105, 196, 384, 90, 464, 336, 244, 407, 71, 437, 338, 96, 222, 353, 68, 550, 400, 614, 165, 300, 583, 188, 206, 191, 494, 612, 433, 497
+	fruitY2 dw 352, 35, 227, 25, 84, 165, 142, 338, 277, 117, 144, 414, 133, 381, 171, 207, 292, 53, 457, 239, 455, 281, 430, 234, 268, 304, 457, 339, 25, 70, 354, 279, 448, 277, 336, 177, 258, 387, 271, 412, 83, 339, 425, 182, 134, 217, 207, 110, 70, 159, 453, 302, 191, 274, 288, 345, 216, 242, 294, 174, 80, 220, 90, 38, 252, 348, 177, 317, 382, 290, 344, 353, 368, 93, 314, 282, 129, 231, 148, 185, 246, 316, 365, 361, 254, 211, 248, 416, 76, 289, 225, 118, 144, 20, 458, 154, 240, 31, 281, 61
+	;fruitX1 dw 264, 563, 574, 397, 305, 165, 404, 532, 146, 125, 366, 42, 585, 574, 315, 481, 228, 464, 176, 434, 337, 374, 347, 279, 347, 466, 78, 6, 212, 390, 339, 491, 541, 476, 29, 289, 166, 316, 285, 214, 63, 27, 194, 403, 384, 283, 353, 177, 464, 569, 379, 36, 167, 303, 502, 389, 225, 495, 128, 519, 588, 98, 278, 358, 225, 590, 143, 525, 443, 145, 398, 253, 539, 498, 181, 550, 73, 478, 383, 605, 355, 610, 164, 349, 271, 480, 164, 131, 543, 64, 260, 264, 142, 11, 156, 239, 27, 229, 623, 579
+	;fruitY1 dw 23, 49, 250, 49, 345, 248, 99, 237, 464, 262, 417, 364, 91, 272, 378, 345, 326, 269, 16, 456, 295, 99, 120, 251, 57, 27, 110, 454, 386, 139, 47, 54, 418, 319, 345, 182, 311, 174, 164, 104, 333, 202, 426, 7, 160, 461, 280, 132, 18, 408, 402, 84, 280, 282, 251, 322, 297, 455, 331, 88, 367, 189, 218, 281, 331, 52, 369, 84, 180, 13, 276, 264, 127, 343, 449, 300, 167, 454, 173, 255, 117, 178, 230, 473, 414, 437, 25, 268, 302, 208, 194, 244, 13, 148, 367, 213, 191, 316, 176, 111
+	;fruitX2 dw 271, 367, 444, 89, 334, 307, 335, 84, 244, 129, 439, 599, 334, 170, 260, 130, 365, 635, 394, 384, 287, 35, 154, 59, 597, 148, 573, 632, 36, 50, 376, 13, 253, 162, 394, 114, 296, 100, 354, 203, 430, 306, 560, 427, 287, 461, 223, 299, 499, 551, 289, 190, 100, 368, 619, 573, 255, 186, 568, 277, 189, 185, 572, 134, 191, 484, 222, 634, 510, 350, 594, 96, 401, 372, 257, 345, 619, 38, 432, 308, 7, 453, 180, 406, 26, 220, 565, 605, 528, 534, 576, 111, 534, 312, 208, 108, 350, 485, 122, 272
+	;fruitY2 dw 392, 148, 249, 205, 34, 324, 74, 50, 192, 319, 190, 30, 54, 182, 27, 96, 354, 139, 220, 305, 461, 6, 401, 357, 405, 245, 241, 458, 104, 403, 412, 221, 446, 460, 133, 103, 378, 171, 229, 130, 144, 67, 388, 342, 18, 162, 180, 437, 188, 170, 262, 466, 49, 112, 148, 458, 286, 174, 459, 243, 429, 117, 180, 417, 119, 110, 230, 355, 356, 271, 151, 387, 44, 44, 362, 234, 418, 346, 464, 148, 59, 192, 107, 396, 73, 404, 206, 202, 60, 141, 11, 249, 170, 163, 98, 356, 302, 392, 297, 109
+	vida1 dw 3
+	vida2 dw 3
+	
+	val1 times maxFrutas dw 1
+	val2 times maxFrutas dw 1
+	num_frutas dw 40
 
 segment stack stack
 	resb	512
