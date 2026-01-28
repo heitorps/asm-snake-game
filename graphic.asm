@@ -1,22 +1,47 @@
+global cursor
+global caracter
 global line
 global plot_xy
 global full_circle
-
+global plot
 global modo_anterior
 global cor
-
+global xPlot
+global yPlot
+extern step
 ;;;;;;;;;;;;;;;;;;
 global vermelho
-
+global amarelo
 global preto
 global cyan
+global magenta
 global branco_intenso
 global preto
+global cinza
 global amarelo
 ;;;;;;;;;;;;;;;;;;;
 
 
 segment code
+
+; Função genérica que printa um full circle na posição (X,Y) guardados em xPlot e yPlot, com raio
+; igual a constante step e cor definida previamente na word cor
+plot:
+	PUSH AX
+    MOV		AX,[xPlot]
+    PUSH	AX
+    MOV		AX,[yPlot]
+    PUSH	AX
+	mov		AX, step
+	shr		AX, 1
+	PUSH 	AX
+    CALL	full_circle
+	POP AX
+	RET
+;-----------------------------------------------------------------------------
+;função cursor
+; Parametros:
+; 	DH = linha (0-29) e  DL = coluna  (0-79) 
 cursor:
 		PUSHf
 		PUSH 	AX
@@ -551,6 +576,9 @@ segment data
     modo_anterior	db		0
     linha   		dw  	0
     coluna  		dw  	0
+
+	xPlot dw 0
+	yPlot dw 0
 
     deltAX			dw		0
     deltay			dw		0	
